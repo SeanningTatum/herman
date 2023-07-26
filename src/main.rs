@@ -2,6 +2,7 @@ use notify::{event::CreateKind, Error, Event, EventKind, RecursiveMode, Watcher}
 use std::{
     fs, io,
     path::{Path, PathBuf},
+    sync::mpsc::{Receiver, Sender},
 };
 
 /// TODO LIST
@@ -33,6 +34,10 @@ enum FileType {
 }
 
 fn main() -> notify::Result<()> {
+    let (tx, rx): (Sender<()>, Receiver<()>) = std::sync::mpsc::channel();
+
+    // let mut already_moved = vec![];
+
     // Automatically select the best implementation for your platform.
     let mut watcher = notify::recommended_watcher(|res: Result<Event, Error>| match res {
         Ok(event) => {
@@ -52,7 +57,11 @@ fn main() -> notify::Result<()> {
                     let (relative_file_path, new_file_path) =
                         get_new_file_path(added_file_buf).unwrap();
 
-                    organize_file(&relative_file_path, &new_file_path).unwrap();
+                    if let Err(err) = organize_file(&relative_file_path, &new_file_path) {
+                        // eprintln!("{err}");
+                    }
+
+                    // &already_moved.push(relative_file_path);
                 }
                 _ => {}
             }
@@ -60,18 +69,23 @@ fn main() -> notify::Result<()> {
         Err(e) => println!("watch error: {:?}", e),
     })?;
 
+    initialize_directory()?;
+
     watcher.watch(
         Path::new("herman_watcher_test/"),
         RecursiveMode::NonRecursive,
     )?;
 
-    initialize_directory()?;
+    for e in rx {
+        println!("{:?}", e);
+    }
 
-    loop {}
+    // loop {}
+    Ok(())
 }
 
 ///
-/// Creates the starting directories and moves the currently exisiting files into
+/// Creates the starting directories and moves existing files into
 /// their respective folder
 ///
 fn initialize_directory() -> Result<(), io::Error> {
@@ -84,8 +98,6 @@ fn initialize_directory() -> Result<(), io::Error> {
 
     entries.sort();
 
-    // println!("{:?}", entries);
-
     for directory in INITIAL_DIRECTORIES {
         let path = format!("herman_watcher_test/{directory}");
         match fs::create_dir(&path) {
@@ -97,26 +109,30 @@ fn initialize_directory() -> Result<(), io::Error> {
     for absolute_path_buf in entries {
         let (relative_file_path, new_file_path) = get_new_file_path(&absolute_path_buf).unwrap();
 
-        organize_file(&relative_file_path, &new_file_path).unwrap();
+        if let Err(err) = organize_file(&relative_file_path, &new_file_path) {
+            eprintln!("{err}");
+        }
     }
 
     Ok(())
 }
 
+///
+/// Helper function that 'cuts' the file into the new directory
+///
 fn organize_file(from: &str, to: &str) -> Result<(), String> {
-    if let Ok(_) = fs::copy(&from, &to) {
+    if let Err(e) = fs::copy(&from, &to) {
+        return Err(e.to_string());
+    } else {
         match fs::remove_file(from) {
             Ok(_) => Ok(()),
-            Err(_) => Err("Map this and change this to a custom error".to_string()),
+            Err(e) => Err(e.to_string()),
         }
-    } else {
-        eprintln!("An error occurred while moving {from} to {to}");
-        return Err("Change this to a custom enum".to_string());
     }
 }
 
 ///
-/// Helper function that converts a `&PathBuf` into a `FileType`
+/// Helper function that maps a `&PathBuf` into a `FileType`
 ///
 fn get_media_type(path_buf: &PathBuf) -> FileType {
     if let Some(extension) = path_buf.extension() {
