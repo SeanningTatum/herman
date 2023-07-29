@@ -1,4 +1,7 @@
-use std::{fs, path::PathBuf};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use crate::{constants, errors::HermanErrors, types};
 
@@ -20,26 +23,26 @@ pub fn move_files(entries: Vec<PathBuf>) {
 ///
 /// Helper function that 'cuts' the file into the new directory
 ///
-pub fn move_file(path_buf: &PathBuf) -> Result<(), HermanErrors> {
+pub fn move_file(path_buf: &Path) -> Result<(), HermanErrors> {
     let (from, to) = get_new_file_path(path_buf);
 
-    if let Err(_) = fs::copy(&from, &to) {
-        return Err(HermanErrors::FileCopyError);
+    if fs::copy(&from, to).is_err() {
+        Err(HermanErrors::FileCopy)
     } else {
         match fs::remove_file(from) {
             Ok(_) => Ok(()),
-            Err(_) => Err(HermanErrors::FileDeleteError),
+            Err(_) => Err(HermanErrors::FileDelete),
         }
     }
 }
 
 ///
-/// Transforms an absolute `&PathBuf` into a relative path to properly
+/// Transforms an absolute `&Path` into a relative path to properly
 /// copy data over with `std::fs`.
 ///
 /// Returns the relative path of the file and the directory where the file will be moved  
 ///
-pub fn get_new_file_path(path_buf: &PathBuf) -> (String, String) {
+pub fn get_new_file_path(path_buf: &Path) -> (String, String) {
     let name = path_buf.file_name().unwrap().to_str().unwrap();
     let parent = path_buf.parent().unwrap().to_str().unwrap();
 
@@ -59,9 +62,9 @@ pub fn get_new_file_path(path_buf: &PathBuf) -> (String, String) {
 }
 
 ///
-/// Helper function that maps a `&PathBuf` into a `FileType`
+/// Helper function that maps a `&Path` into a `FileType`
 ///
-pub fn get_media_type(path_buf: &PathBuf) -> types::FileType {
+pub fn get_media_type(path_buf: &Path) -> types::FileType {
     if let Some(extension) = path_buf.extension() {
         let extension = extension.to_str().unwrap();
 

@@ -1,6 +1,6 @@
 [package]
 name = "herman"
-author = "Sean Urgel"
+author = "SeanningTatum"
 description = "A rusty daemon that watches folders and organises them automatically."
 version = "0.1.0"
 edition = "2021"
