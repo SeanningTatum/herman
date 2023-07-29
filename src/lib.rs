@@ -1,3 +1,7 @@
+//! # Herman
+//!
+//! A rusty daemon that re-arranges files into subdirectories
+//!
 use errors::HermanErrors;
 use notify::{event::CreateKind, Event, EventKind, FsEventWatcher, RecursiveMode, Watcher};
 use std::{
