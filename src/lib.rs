@@ -22,28 +22,25 @@ pub fn watch_directory(directory: &str) -> notify::Result<FsEventWatcher> {
         Ok(event) => {
             // println!("event: {:?}", event);
 
-            match event.kind {
-                EventKind::Create(CreateKind::File) => {
-                    // There is a chance where there are 2 paths, the reason for this is yet to be investigated
-                    // but we'll not handle that use case for now
-                    if event.paths.len() != 1 {
-                        return;
-                    }
-
-                    let added_file_buf: &PathBuf = &event.paths[0];
-
-                    if let Err(_) = helpers::move_file(added_file_buf) {
-                        // FIXME:- Something with the watcher still marks events after the file has been moved
-                        // Think about implementing polling or filtering events more properly to prevent this from happening.
-
-                        // eprintln!(
-                        //     "Something happened while moving {:?}: {:?}",
-                        //     added_file_buf.to_str(),
-                        //     error_type
-                        // );
-                    }
+            if let EventKind::Create(CreateKind::File) = event.kind {
+                // There is a chance where there are 2 paths, the reason for this is yet to be investigated
+                // but we'll not handle that use case for now
+                if event.paths.len() != 1 {
+                    return;
                 }
-                _ => {}
+
+                let added_file_buf: &PathBuf = &event.paths[0];
+
+                if helpers::move_file(added_file_buf).is_err() {
+                    // FIXME:- Something with the watcher still marks events after the file has been moved
+                    // Think about implementing polling or filtering events more properly to prevent this from happening.
+
+                    // eprintln!(
+                    //     "Something happened while moving {:?}: {:?}",
+                    //     added_file_buf.to_str(),
+                    //     error_type
+                    // );
+                }
             }
         }
         Err(e) => println!("Notify watcher error: {e}"),
@@ -61,7 +58,7 @@ pub fn watch_directory(directory: &str) -> notify::Result<FsEventWatcher> {
 ///
 pub fn initialize_directory(directory: &str) -> Result<Vec<PathBuf>, HermanErrors> {
     let mut entries: Vec<PathBuf> = fs::read_dir(directory)
-        .map_err(|_| errors::HermanErrors::DirectoryReadError)?
+        .map_err(|_| errors::HermanErrors::DirectoryReae)?
         .map(|res| res.map(|e| e.path()).unwrap_or(PathBuf::new()))
         .filter(|path| !path.is_dir() || !path.exists())
         .collect();
@@ -72,10 +69,10 @@ pub fn initialize_directory(directory: &str) -> Result<Vec<PathBuf>, HermanError
         let path = format!("{directory}/{nested_directory}");
         print!("Initializing {path}......");
 
-        if let Err(_) = fs::create_dir(&path) {
-            print!("DIRECTORY EXISTS! Skipping...\n");
+        if fs::create_dir(&path).is_err() {
+            println!("DIRECTORY EXISTS! Skipping...");
         } else {
-            print!("INITIALIZED!\n");
+            println!("INITIALIZED!");
         }
     }
 
