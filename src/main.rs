@@ -1,5 +1,7 @@
+use std::thread;
+
 use clap::Parser;
-use herman::{helpers, watch_directory};
+use herman::{helpers, initialize_directory, watch_directory};
 
 /// A rusty daemon that watches and rearranges the files
 #[derive(Parser, Debug)]
@@ -18,7 +20,7 @@ fn main() {
     let args = Args::parse();
 
     if args.clean_on_startup {
-        match helpers::initialize_directory(args.directory.as_str()) {
+        match initialize_directory(args.directory.as_str()) {
             Ok(entries) => helpers::move_files(entries),
             Err(_) => {
                 eprintln!("Path does not exist or we lack permissions to modify the directory")
@@ -27,11 +29,12 @@ fn main() {
     }
 
     match watch_directory(&args.directory) {
-        Ok(_) => println!("Watching {} for changes...", &args.directory),
+        Ok(_) => {
+            println!("Watching {} for changes...", &args.directory);
+            thread::park();
+        }
         Err(e) => eprintln!("Something happened while watching {}: {e}", &args.directory),
     };
-
-    loop {}
 }
 
 #[cfg(test)]
@@ -45,7 +48,7 @@ mod test {
         initialize_test_folder(TEST_DIR_PATH);
         initialize_test_files(TEST_DIR_PATH);
 
-        let res = helpers::initialize_directory(TEST_DIR_PATH);
+        let res = initialize_directory(TEST_DIR_PATH);
         assert!(res.is_ok());
 
         let directories = res.unwrap();
@@ -63,7 +66,7 @@ mod test {
     fn watcher_arranges_files() {
         initialize_test_folder(TEST_WATCHER_DIR_PATH);
 
-        let res = helpers::initialize_directory(TEST_WATCHER_DIR_PATH);
+        let res = initialize_directory(TEST_WATCHER_DIR_PATH);
         assert!(res.is_ok());
 
         if let Ok(_) = watch_directory(TEST_WATCHER_DIR_PATH) {
@@ -81,6 +84,10 @@ mod test {
             clean_dir(TEST_WATCHER_DIR_PATH);
         }
     }
+
+    ///
+    /// Test helper functions
+    ///
 
     const TEST_DIR_PATH: &str = "./test";
     const TEST_WATCHER_DIR_PATH: &str = "./test_watcher";

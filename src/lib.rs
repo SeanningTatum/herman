@@ -1,10 +1,14 @@
+use errors::HermanErrors;
 use notify::{event::CreateKind, Event, EventKind, FsEventWatcher, RecursiveMode, Watcher};
-use std::path::{Path, PathBuf};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
-pub mod constants;
-pub mod errors;
+mod constants;
+mod errors;
 pub mod helpers;
-pub mod types;
+mod types;
 
 /// Watches a directory where herman will rearrange the files into sub-directories.
 /// The sub-directories that will be created can be found at `constants::INITIAL_DIRECTORIES`
@@ -44,4 +48,32 @@ pub fn watch_directory(directory: &str) -> notify::Result<FsEventWatcher> {
     watcher.watch(Path::new(directory), RecursiveMode::NonRecursive)?;
 
     Ok(watcher)
+}
+
+/// Creates the initial directories
+///
+/// # Errors
+/// If the supplied directory does not exist
+///
+pub fn initialize_directory(directory: &str) -> Result<Vec<PathBuf>, HermanErrors> {
+    let mut entries: Vec<PathBuf> = fs::read_dir(directory)
+        .map_err(|_| errors::HermanErrors::DirectoryReadError)?
+        .map(|res| res.map(|e| e.path()).unwrap_or(PathBuf::new()))
+        .filter(|path| !path.is_dir() || !path.exists())
+        .collect();
+
+    entries.sort();
+
+    for nested_directory in constants::INITIAL_DIRECTORIES {
+        let path = format!("{directory}/{nested_directory}");
+        print!("Initializing {path}......");
+
+        if let Err(_) = fs::create_dir(&path) {
+            print!("DIRECTORY EXISTS! Skipping...\n");
+        } else {
+            print!("INITIALIZED!\n");
+        }
+    }
+
+    Ok(entries)
 }

@@ -1,39 +1,6 @@
 use std::{fs, path::PathBuf};
 
-use crate::{
-    constants,
-    errors::{self, HermanErrors},
-    types,
-};
-
-///
-/// Creates the initial directories
-///
-/// # Errors
-/// If the supplied directory does not exist
-///
-pub fn initialize_directory(directory: &str) -> Result<Vec<PathBuf>, HermanErrors> {
-    let mut entries: Vec<PathBuf> = fs::read_dir(directory)
-        .map_err(|_| errors::HermanErrors::DirectoryReadError)?
-        .map(|res| res.map(|e| e.path()).unwrap_or(PathBuf::new()))
-        .filter(|path| !path.is_dir() || !path.exists())
-        .collect();
-
-    entries.sort();
-
-    for nested_directory in constants::INITIAL_DIRECTORIES {
-        let path = format!("{directory}/{nested_directory}");
-        print!("Initializing {path}......");
-
-        if let Err(_) = fs::create_dir(&path) {
-            print!("DIRECTORY EXISTS! Skipping...\n");
-        } else {
-            print!("INITIALIZED!\n");
-        }
-    }
-
-    Ok(entries)
-}
+use crate::{constants, errors::HermanErrors, types};
 
 ///
 /// Helper function that 'cuts' the vector of path bufs into the new directory
@@ -72,7 +39,7 @@ pub fn move_file(path_buf: &PathBuf) -> Result<(), HermanErrors> {
 ///
 /// Returns the relative path of the file and the directory where the file will be moved  
 ///
-fn get_new_file_path(path_buf: &PathBuf) -> (String, String) {
+pub fn get_new_file_path(path_buf: &PathBuf) -> (String, String) {
     let name = path_buf.file_name().unwrap().to_str().unwrap();
     let parent = path_buf.parent().unwrap().to_str().unwrap();
 
@@ -94,7 +61,7 @@ fn get_new_file_path(path_buf: &PathBuf) -> (String, String) {
 ///
 /// Helper function that maps a `&PathBuf` into a `FileType`
 ///
-fn get_media_type(path_buf: &PathBuf) -> types::FileType {
+pub fn get_media_type(path_buf: &PathBuf) -> types::FileType {
     if let Some(extension) = path_buf.extension() {
         let extension = extension.to_str().unwrap();
 
