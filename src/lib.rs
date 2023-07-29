@@ -3,7 +3,7 @@
 //! A rusty daemon that re-arranges files into subdirectories
 //!
 use errors::HermanErrors;
-use notify::{event::CreateKind, Event, EventKind, FsEventWatcher, RecursiveMode, Watcher};
+use notify::{event::CreateKind, Event, EventKind, RecursiveMode, Watcher};
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -16,7 +16,7 @@ mod types;
 
 /// Watches a directory where herman will rearrange the files into sub-directories.
 /// The sub-directories that will be created can be found at `constants::INITIAL_DIRECTORIES`
-pub fn watch_directory(directory: &str) -> notify::Result<FsEventWatcher> {
+pub fn watch_directory(directory: &str) -> notify::Result<notify::RecommendedWatcher> {
     // Automatically select the best implementation for your platform.
     let mut watcher = notify::recommended_watcher(|res: Result<Event, notify::Error>| match res {
         Ok(event) => {
@@ -113,10 +113,10 @@ mod test {
 
         if let Ok(_) = watch_directory(TEST_WATCHER_DIR_PATH) {
             println!("Watching {TEST_WATCHER_DIR_PATH} for changes...");
-            thread::sleep(Duration::from_secs(1));
+            thread::sleep(Duration::from_millis(300));
 
             initialize_test_files(TEST_WATCHER_DIR_PATH);
-            thread::sleep(Duration::from_secs(2));
+            thread::sleep(Duration::from_millis(300));
 
             assert!(Path::new("./test_watcher/docs/test_file.docx").exists());
             assert!(Path::new("./test_watcher/programming/test_file.rs").exists());
