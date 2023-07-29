@@ -7,7 +7,7 @@ A rusty daemon that watches folders and organises the files automatically
 Install globally with `cargo`
 
 ```bash
-  cargo add herman
+cargo add herman
 ```
     
 ## Usage/Examples
