@@ -1,4 +1,4 @@
-use notify::{event::CreateKind, Event, EventKind, RecursiveMode, Watcher};
+use notify::{event::CreateKind, Event, EventKind, FsEventWatcher, RecursiveMode, Watcher};
 use std::path::{Path, PathBuf};
 
 pub mod constants;
@@ -8,13 +8,12 @@ pub mod types;
 
 /// Watches a directory where herman will rearrange the files into sub-directories.
 /// The sub-directories that will be created can be found at `constants::INITIAL_DIRECTORIES`
-pub fn watch_directory(directory: &str) -> notify::Result<()> {
+pub fn watch_directory(directory: &str) -> notify::Result<FsEventWatcher> {
     // Automatically select the best implementation for your platform.
     let mut watcher = notify::recommended_watcher(|res: Result<Event, notify::Error>| match res {
         Ok(event) => {
             // println!("event: {:?}", event);
 
-            // Save to a text file the error logs
             match event.kind {
                 EventKind::Create(CreateKind::File) => {
                     // There is a chance where there are 2 paths, the reason for this is yet to be investigated
@@ -25,11 +24,15 @@ pub fn watch_directory(directory: &str) -> notify::Result<()> {
 
                     let added_file_buf: &PathBuf = &event.paths[0];
 
-                    let (relative_file_path, new_file_path) =
-                        helpers::get_new_file_path(added_file_buf).unwrap();
+                    if let Err(_) = helpers::move_file(added_file_buf) {
+                        // FIXME:- Something with the watcher still marks events after the file has been moved
+                        // Think about implementing polling or filtering events more properly to prevent this from happening.
 
-                    if let Err(err) = helpers::move_file(&relative_file_path, &new_file_path) {
-                        eprintln!("{err}");
+                        // eprintln!(
+                        //     "Something happened while moving {:?}: {:?}",
+                        //     added_file_buf.to_str(),
+                        //     error_type
+                        // );
                     }
                 }
                 _ => {}
@@ -39,5 +42,6 @@ pub fn watch_directory(directory: &str) -> notify::Result<()> {
     })?;
 
     watcher.watch(Path::new(directory), RecursiveMode::NonRecursive)?;
-    Ok(())
+
+    Ok(watcher)
 }

@@ -11,4 +11,4 @@ pub const PROGRAMMING_FILE_EXTENSIONS: [&str; 27] = [
 pub const OFFICE_DOCUMENT_EXTENSIONS: [&str; 7] =
     ["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx"];
 
-pub const INITIAL_DIRECTORIES: [&str; 3] = ["media", "programming", "docs"];
+pub const INITIAL_DIRECTORIES: [&str; 4] = ["docs", "etc", "media", "programming"];
