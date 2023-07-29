@@ -58,7 +58,7 @@ pub fn watch_directory(directory: &str) -> notify::Result<FsEventWatcher> {
 ///
 pub fn initialize_directory(directory: &str) -> Result<Vec<PathBuf>, HermanErrors> {
     let mut entries: Vec<PathBuf> = fs::read_dir(directory)
-        .map_err(|_| errors::HermanErrors::DirectoryReae)?
+        .map_err(|_| errors::HermanErrors::DirectoryRead)?
         .map(|res| res.map(|e| e.path()).unwrap_or(PathBuf::new()))
         .filter(|path| !path.is_dir() || !path.exists())
         .collect();
