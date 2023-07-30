@@ -15,14 +15,12 @@ cargo install herman
 Clean a folder
 
 ```bash
-cargo add herman
 herman clean ./downloads
 ```
 
 Watch a folder
 
 ```bash
-cargo add herman
 herman watch ./downloads
 ```
 
