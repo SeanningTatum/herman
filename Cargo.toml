@@ -2,7 +2,7 @@
 name = "herman"
 author = "SeanningTatum"
 description = "A rusty daemon that watches folders and organises them automatically."
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "MIT"
 keywords = ["cli", "scripting", "filesystem"]
