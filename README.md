@@ -9,6 +9,10 @@ A rusty daemon that watches folders and organises the files automatically
 
 <img src="./assets/herman.jpg" height="200px">
 
+## Demo
+
+https://github.com/SeanningTatum/herman/assets/26712061/40f38338-0a25-4d65-97ea-4d2a8a559785
+
 ## Installation
 
 Install globally with `cargo`
@@ -52,6 +56,16 @@ Run script locally
 ```bash
 cargo run -- clean ./test/folder
 ```
+
+
+## Contributing
+
+Contributions are always welcome!
+
+See `contributing.md` for ways to get started.
+
+Please adhere to this project's `code of conduct`.
+
 
 ## License
 
