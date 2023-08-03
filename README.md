@@ -7,16 +7,14 @@
 
 A rusty daemon that watches folders and organises the files automatically
 
-![Logo](./assets/herman.jpg)
-
-![Video](./assets/herman_trimmed_1080p.mov)
+<img src="./assets/herman.jpg" height="200px">
 
 ## Installation
 
 Install globally with `cargo`
 
 ```bash
-  cargo add herman
+cargo add herman
 ```
 
 ## Usage/Examples
@@ -24,15 +22,15 @@ Install globally with `cargo`
 Clean a folder
 
 ```bash
-  cargo add herman
-  herman clean ./downloads
+cargo add herman
+herman clean ./downloads
 ```
 
 Watch a folder
 
 ```bash
-  cargo add herman
-  herman watch ./downloads
+cargo add herman
+herman watch ./downloads
 ```
 
 ## Run Locally
@@ -40,30 +38,20 @@ Watch a folder
 Clone and navigate to directory
 
 ```bash
-  git clone https://link-to-project
-  cd herman
+git clone https://link-to-project
+cd herman
 ```
 
 Run watcher locally
 
 ```bash
-  cargo run -- watch ./test/folder
+cargo run -- watch ./test/folder
 ```
 Run script locally
 
 ```bash
-  cargo run -- clean ./test/folder
+cargo run -- clean ./test/folder
 ```
-
-
-## Contributing
-
-Contributions are always welcome!
-
-See `contributing.md` for ways to get started.
-
-Please adhere to this project's `code of conduct`.
-
 
 ## License
 
