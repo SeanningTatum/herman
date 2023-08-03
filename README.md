@@ -9,6 +9,9 @@ A rusty daemon that watches folders and organises the files automatically
 
 <img src="./assets/herman.jpg" height="200px">
 
+## Demo
+
+https://github.com/SeanningTatum/herman/assets/26712061/40f38338-0a25-4d65-97ea-4d2a8a559785
 
 ## Installation
 
