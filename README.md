@@ -59,9 +59,9 @@ cargo run -- clean ./test/folder
 
 ## Roadmap
 
-[ ] Read Desired Folder Setup from Custom Configuration File
-[ ] Custom Mapping to Dates
-  [ ] Organise by week, month, year, etc. 
+- [ ] Read Desired Folder Setup from Custom Configuration File
+- [ ] Custom Mapping to Dates
+  - [ ] Organise by week, month, year, etc. 
 
 
 ## License
