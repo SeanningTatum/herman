@@ -57,14 +57,11 @@ Run script locally
 cargo run -- clean ./test/folder
 ```
 
+## Roadmap
 
-## Contributing
-
-Contributions are always welcome!
-
-See `contributing.md` for ways to get started.
-
-Please adhere to this project's `code of conduct`.
+[ ] Read Desired Folder Setup from Custom Configuration File
+[ ] Custom Mapping to Dates
+  [ ] Organise by week, month, year, etc. 
 
 
 ## License
